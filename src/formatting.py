@@ -1,5 +1,5 @@
 ### This is a file that contains functions that help identify if there is
-### a formatting pattern
+### a formatting pattern.
 from string import punctuation
 import pandas as pd 
 import math
