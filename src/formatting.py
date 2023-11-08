@@ -12,13 +12,15 @@ def string_format(example, fill_col=1, cand=0):
     valid = example.iloc[:,fill_col].dropna()
     number = len(valid)
     start1 = str(example[0][0]).strip()
-    start2 = str(valid[0]).strip()
+    start2 = str(int(valid[0])).strip()
+    print(start1, start2)
     cands = ['extract', 'concat', 'refactoring', 'complex']
     pos = start1.find(start2)
     cand = 0 
     okay = True
     if pos != -1:
         context= [None, None]
+        print("###################")
         if pos==0:
             context[0]='start'
         else:
@@ -27,6 +29,8 @@ def string_format(example, fill_col=1, cand=0):
             context[1]='end'
         else:
             context[1]=start1[pos+len(start2)]  
+        print("context",context)
+
         for i in range(1,number):
             start1 = example[0][i]
             start2 = valid[i]
@@ -63,6 +67,8 @@ def string_format(example, fill_col=1, cand=0):
             return cands[cand], cand
     cand = 1 
     okay = True
+    start1 = str(example[0][0]).strip()
+    start2 = str(int(valid[0])).strip()
     pos = start2.find(start1)
     if pos != -1:
         before = start2[:pos]
@@ -144,7 +150,7 @@ def string_format_fill(example, fill_col=1, method=""):
           context[1]='end'
       else:
           context[1]=start1[pos+len(start2)]  
-  
+      print("context",context)
       if context[0] == 'start':
           for j in range(number, len(example[0])):
               example[fill_col][j] = example[0][j][0:start1.find(context[1])]
