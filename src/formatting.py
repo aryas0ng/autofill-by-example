@@ -160,6 +160,8 @@ def string_format_fill(example, fill_col=1, method=""):
               example[fill_col][j] = example[0][j][left+1:right]
             
     elif method == 'concat':
+        start1 = str(example[0][0]).strip()
+        start2 = str(valid[0]).strip()
         pos = start2.find(start1)
         before = start2[:pos]
         after = start2[pos+len(start1):]
@@ -167,7 +169,11 @@ def string_format_fill(example, fill_col=1, method=""):
             example[fill_col][j] = before + example[0][j] + after
     
     elif method == "refactoring":
+        start1 = str(example[0][0]).strip()
+        start2 = str(valid[0]).strip()
         ifpunc = False
+        goal = start2.lower()
+        goal_lst = [] 
         if goal[0] not in punctuation:
             goal_lst.append("")
             ifpunc = False
@@ -175,8 +181,7 @@ def string_format_fill(example, fill_col=1, method=""):
             goal_lst.append(goal[0])
 
         ifpunc = True
-        goal = start2.lower()
-        goal_lst = [] 
+        
         for i in range(1,len(goal)):
           if goal[i] in punctuation and ifpunc:
               goal_lst[-1] += goal[i]
@@ -187,7 +192,7 @@ def string_format_fill(example, fill_col=1, method=""):
               ifpunc = False
         if not ifpunc: goal_lst.append("")
 
-        for j in range(number, len()):
+        for j in range(number, len(example)):
             origin = example[0][j].lower()
             origin_lst = []
             ifchar = False
@@ -203,8 +208,8 @@ def string_format_fill(example, fill_col=1, method=""):
             # assert(len(origin_lst)+1 == len(goal_lst))
             fused = ""
             for i in range(len(goal_lst)-1):
-                fused += goal_lst[j]
-                fused += origin_lst[j]
+                fused += goal_lst[i]
+                fused += origin_lst[i]
             example[fill_col][j] = fused
     
     return example
