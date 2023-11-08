@@ -53,9 +53,9 @@ def main():
         # if method in ['+', '-1', '-2','*','/1','/2','max','min','avg']:
         #     example = ez_rel_fill(example, method=method)
         if method in ['extract', 'concat', 'refactoring', 'complex']:
-            example = string_format_fill(example, method=method)
+            example = string_format_fill(data, method=method)
         else:
-            example = autofill(example)
+            example = autofill(data)
     
     check(example, file_root+"_expected.scv")
     example.to_csv(output_path, index=False)
