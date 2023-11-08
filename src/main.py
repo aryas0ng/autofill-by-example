@@ -4,14 +4,15 @@ from multiple_rows import *
 from weighted_col import *
 from empty_entries import *
 from tailing import * 
+from ez_numeric_2cols import ez_rel, ez_rel_fill
+
 
 def load_csv(file_path):
     df = pd.read_csv(file_path, header=None)
     return df
 
 
-def autofill(file_path):
-    table = load_csv(file_path)
+def autofill(table):
 
     # remove ending empty cols
     table = tailing(table)
@@ -20,7 +21,11 @@ def autofill(file_path):
     empty, zeroes, table = remove_empty_entries(table)
 
     # simple operations
-
+    method, cand = ez_rel(table)
+    if method in ['+', '-1', '-2','*','/1','/2','max','min','avg']:
+        table = ez_rel_fill(table, method=method)
+        return table
+    
     # multiple rows operation
     op, result = multiple_row_sum_avg(table)
     if result != -1:
