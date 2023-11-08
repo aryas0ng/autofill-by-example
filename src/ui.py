@@ -9,7 +9,7 @@ from formatting import string_format, string_format_fill
 from main import autofill,check
 
 def load_csv(file_path):
-    df = pd.read_csv(file_path)
+    df = pd.read_csv(file_path, header = None)
     return df
 
 # Function to update a CSV file with new data

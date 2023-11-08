@@ -4,8 +4,12 @@ from string import punctuation
 import pandas as pd 
 import math
 def string_format(example, fill_col=1, cand=0):
-    print(fill_col, example.shape)
-    valid = example[fill_col].dropna()
+    example = pd.DataFrame(example)
+    # print(fill_col, example.shape)
+    print(example)
+    print(example.iloc[:,fill_col])
+    # print(type(example))
+    valid = example.iloc[:,fill_col].dropna()
     number = len(valid)
     start1 = str(example[0][0]).strip()
     start2 = str(valid[0]).strip()
