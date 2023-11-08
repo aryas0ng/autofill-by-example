@@ -4,6 +4,7 @@
 
 import argparse
 import pandas as pd
+import numpy as np
 # from ez_numeric_2cols import ez_rel, ez_rel_fill
 from formatting import string_format, string_format_fill
 from main import autofill,check
@@ -43,21 +44,28 @@ def main():
     
     data = load_csv(file_path)
     method, cand = None, -1
-    # method, cand = ez_rel(data)
-    if cand == -1:
-        method, cand = string_format(data)
-    if method == None:
-        print("It is too hard to infer potential relationship from the given columns.")
-        return 0 
-    else:
-        # if method in ['+', '-1', '-2','*','/1','/2','max','min','avg']:
-        #     example = ez_rel_fill(example, method=method)
+    # print(type(data[0][0]))
+    if isinstance(data[0][0], np.int64):
         if method in ['extract', 'concat', 'refactoring', 'complex']:
             example = string_format_fill(data, method=method)
         else:
             example = autofill(data)
+    else:
+        # method, cand = ez_rel(data)
+        if cand == -1:
+            method, cand = string_format(data)
+        if method == None:
+            print("It is too hard to infer potential relationship from the given columns.")
+            return 0 
+        else:
+            # if method in ['+', '-1', '-2','*','/1','/2','max','min','avg']:
+            #     example = ez_rel_fill(example, method=method)
+            if method in ['extract', 'concat', 'refactoring', 'complex']:
+                example = string_format_fill(data, method=method)
+            else:
+                example = autofill(data)
     
-    check(example, file_root+"_expected.scv")
+    check(example, file_root+"_expected.csv")
     example.to_csv(output_path, index=False)
     print("Done! The out put is stored in", output_path)
     return 0
