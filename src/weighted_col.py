@@ -1,4 +1,8 @@
 from sympy import symbols, Eq, solve
+import time
+import matplotlib.pyplot as plt
+
+from main import *
 
 # This method tries to find a formula that fit in the table. 
 # The formula will be in the form of w1 * col1 + w2 * col2 + ... = lastcol,
@@ -74,3 +78,41 @@ def fill_weighted_sum(table, weight):
         new.iloc[i,-1] = result
 
     return new
+
+
+# Record and plot the execution time of datasets under the weighted sum formula
+# with different number of columns 
+def weighted_sum_plot():
+    number_to_string = {
+        2: 'two',
+        3: 'three',
+        4: 'four',
+        5: 'five',
+        6: 'six',
+        7: 'seven',
+        8: 'eight',
+        9: 'nine',
+        10: 'ten'
+    }
+
+    times = []
+    for i in range(2,11):
+        n = number_to_string.get(i)
+        file = "../tests/weighted_sum_of_" + n + "_cols.csv"
+        dataset = load_csv(file)
+
+        start_time = time.time()
+        result = autofill(dataset)
+        end_time = time.time()
+
+        duration = (end_time - start_time) * 1000
+
+        times.append(duration)
+
+    plt.plot(list(range(2, 11)), times)
+
+    plt.xlabel('Number of Columns')
+    plt.ylabel('Execution Time (ms)')
+    plt.title('Execution Time Plot')
+
+    plt.show()
