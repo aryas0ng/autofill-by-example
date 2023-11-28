@@ -6,21 +6,21 @@ import math
 def string_format(example, fill_col=1, cand=0):
     example = pd.DataFrame(example)
     # print(fill_col, example.shape)
-    print(example)
-    print(example.iloc[:,fill_col])
+    # print(example)
+    # print(example.iloc[:,fill_col])
     # print(type(example))
     valid = example.iloc[:,fill_col].dropna()
     number = len(valid)
     start1 = str(example[0][0]).strip()
     start2 = str(int(valid[0])).strip()
-    print(start1, start2)
+    # print(start1, start2)
     cands = ['extract', 'concat', 'refactoring', 'complex']
     pos = start1.find(start2)
     cand = 0 
     okay = True
     if pos != -1:
         context= [None, None]
-        print("###################")
+        # print("###################")
         if pos==0:
             context[0]='start'
         else:
@@ -29,7 +29,7 @@ def string_format(example, fill_col=1, cand=0):
             context[1]='end'
         else:
             context[1]=start1[pos+len(start2)]  
-        print("context",context)
+        # print("context",context)
 
         for i in range(1,number):
             start1 = example[0][i]
@@ -116,7 +116,7 @@ def string_format(example, fill_col=1, cand=0):
                 ifchar = True
             elif char not in punctuation and ifchar:
                 origin_lst[-1] += char
-        print(goal_lst, origin_lst)
+        # print(goal_lst, origin_lst)
         assert(len(origin_lst)+1 == len(goal_lst))
         fused = ""
         for j in range(len(goal_lst)-1):
@@ -124,7 +124,7 @@ def string_format(example, fill_col=1, cand=0):
             fused += origin_lst[j]
             
         fused += goal_lst[-1]
-        print(valid[i], fused)
+        # print(valid[i], fused)
         if fused != valid[i]:
             okay = False
             break 

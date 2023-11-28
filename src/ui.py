@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 # from ez_numeric_2cols import ez_rel, ez_rel_fill
 from formatting import string_format, string_format_fill
-from main import autofill,check
+from main import *
 
 def load_csv(file_path):
     df = pd.read_csv(file_path, header = None)
@@ -43,17 +43,43 @@ def main():
     output_path = file_root + "_output.csv"
     
     data = load_csv(file_path)
-    method, cand = None, -1
-    # print(type(data[0][0]))
-    if isinstance(data[0][0], np.int64):
-        if method in ['extract', 'concat', 'refactoring', 'complex']:
-            example = string_format_fill(data, method=method)
-        else:
-            example = autofill(data)
-    else:
+
+    data = cleaning(data)
+    
+    formula = False
+
+    integer = True
+    for i in range(len(data[0])):
+        if not (isinstance(data[0][i], np.int_) or isinstance(data[0][i], int)):
+            integer = False
+
+    # print(integer)
+    if integer:
+        new_data = data
+        for i in range(data.shape[0]):
+            try:
+                temp = pd.to_numeric(data.iloc[i])
+                new_data.iloc[i] = temp
+            except TypeError:
+                integer = False
+                break
+        if integer:
+            data = new_data
+    
+    # print(integer)
+    if integer:
+        # print("here")
+        formula, example = autofill(data)
+
+    # method, cand = None, -1
+    # the numeric formula doesn't apply to the table
+    if not formula:
+        # Convert all the numeric values into string
+        data = data.astype(str)
+
         # method, cand = ez_rel(data)
-        if cand == -1:
-            method, cand = string_format(data)
+        # if cand == -1:
+        method, cand = string_format(data)
         if method == None:
             print("It is too hard to infer potential relationship from the given columns.")
             return 0 
@@ -64,9 +90,10 @@ def main():
                 example = string_format_fill(data, method=method)
             else:
                 example = autofill(data)
-    
-    check(example, file_root+"_expected.csv")
-    example.to_csv(output_path, index=False)
+    # print(example)
+    example = check(example, file_root+"_expected.csv")
+    # print(example)
+    example.to_csv(output_path, index=False, header = False)
     print("Done! The out put is stored in", output_path)
     return 0
 
