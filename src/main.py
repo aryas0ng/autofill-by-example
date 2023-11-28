@@ -55,6 +55,7 @@ def autofill(table):
 
 def check(filled, expected):
     expected = load_csv(expected)
+    # print(expected)
     pd.testing.assert_frame_equal(expected, filled, check_dtype = False, atol = 0.01)
 
     row_num, col_num = filled.shape

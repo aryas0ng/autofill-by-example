@@ -45,31 +45,34 @@ def main():
     data = load_csv(file_path)
 
     data = cleaning(data)
+    # print(data)
     
     formula = False
 
-    integer = True
-    for i in range(len(data[0])):
-        if not (isinstance(data[0][i], np.int_) or isinstance(data[0][i], int)):
-            integer = False
+    num = True
+    # print(data.iloc[0])
+    if not pd.api.types.is_numeric_dtype(data.iloc[0]):
+    # if not pd.to_numeric(data.iloc[0]).all():
+        num = False
 
-    # print(integer)
-    if integer:
+    # print(num)
+    if num:
         new_data = data
         for i in range(data.shape[0]):
             try:
                 temp = pd.to_numeric(data.iloc[i])
                 new_data.iloc[i] = temp
             except TypeError:
-                integer = False
+                num = False
                 break
-        if integer:
+        if num:
             data = new_data
     
-    # print(integer)
-    if integer:
+    # print(num)
+    if num:
         # print("here")
         formula, example = autofill(data)
+    # print(example)
 
     # method, cand = None, -1
     # the numeric formula doesn't apply to the table
