@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<br />
+<h3 align="center">Hello {{user.username}}</h3>
+<form method="POST" enctype="multipart/form-data">
+<div class="form-group">
+  <label for="file">Choose a file from you device</label>
+  <input
+    type="file"
+    class="form-control"
+    id="file"
+    name="file"
+    placeholder="Browse"
+  /> 
+</div>
+<br />
+<div align="center">
+  <button type="submit" class="btn btn-primary">Upload</button>
+</div>
+</form>
+<div align="center">
+  {% for filename in files %}
+  <a href="{{ url_for('download', filename=filename)}}"> {{ filename }}</a>
+  {% endfor %}
+</div>
+{% endblock %}
