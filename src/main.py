@@ -42,9 +42,9 @@ def autofill(table):
         return fill_filter_count(table, trial)
     
     # weighted sum operation
-    trial, w1, w2 = weighted_sum(table)
-    if trial:
-        return fill_weighted_sum(table, trial, w1, w2)
+    weight = weighted_sum(table)
+    if weight != None:
+        return fill_weighted_sum(table, weight)
 
     return table
     
