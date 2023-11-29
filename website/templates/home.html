@@ -20,4 +20,13 @@
   <button type="submit" class="btn btn-primary">Upload</button>
 </div>
 </form>
+<br />
+<br />
+<h3 align="center">History</h3>
+<div align="center">
+  {% for file in user.files %}
+  <a href="{{ url_for('views.output', filename=file.file_path)}}"> {{ file.file_path }}</a>
+  <br />
+  {% endfor %}
+</div>
 {% endblock %}

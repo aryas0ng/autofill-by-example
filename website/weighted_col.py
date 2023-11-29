@@ -1,8 +1,16 @@
 from sympy import symbols, Eq, solve
 import time
 import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
 
-from main import *
+def load_csv(file_path):
+    df = pd.read_csv(file_path, header = None)
+    return df
+
+# Function to update a CSV file with new data
+def update_csv(file_path, df):
+    df.to_csv(file_path, index=False)
 
 # This method tries to find a formula that fit in the table. 
 # The formula will be in the form of w1 * col1 + w2 * col2 + ... = lastcol,
