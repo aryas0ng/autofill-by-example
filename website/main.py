@@ -1,5 +1,6 @@
 import pandas as pd
 
+from unit_conversion import *
 from multiple_rows import *
 from weighted_col import *
 from empty_entries import *
@@ -23,8 +24,16 @@ def cleaning(table):
 
 
 def autofill(table):
-    # simple operations
     row_num, col_num = table.shape
+
+    # unit conversion
+    if col_num == 2:
+        formula, unit = unit_conversion(table)
+        if formula:
+            table = fill_unit_conversion(table, unit)
+            return True, table
+    
+    # simple operations
     if col_num >= 3:
         method, cand = ez_rel(table)
         if method in ['+', '-1', '-2','*','/1','/2','max','min','avg']:
