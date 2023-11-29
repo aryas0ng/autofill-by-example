@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 # from ez_numeric_2cols import ez_rel, ez_rel_fill
 from formatting import string_format, string_format_fill
-from main import *
+from local_main import *
 
 def load_csv(file_path):
     df = pd.read_csv(file_path, header = None)
@@ -97,7 +97,7 @@ def main():
     example = check(example, file_root+"_expected.csv")
     # print(example)
     example.to_csv(output_path, index=False, header = False)
-    print("Done! The out put is stored in", output_path)
+    print("Done! The output is stored in", output_path)
     return 0
 
 main()

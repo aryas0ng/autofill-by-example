@@ -1,11 +1,11 @@
 import pandas as pd
 
-from .unit_conversion import *
-from .multiple_rows import *
-from .weighted_col import *
-from .empty_entries import *
-from .tailing import * 
-from .ez_numeric_2cols import *
+from unit_conversion import *
+from multiple_rows import *
+from weighted_col import *
+from empty_entries import *
+from tailing import * 
+from ez_numeric import *
 
 
 def load_csv(file_path):
@@ -35,7 +35,7 @@ def autofill(table):
     
     # simple operations
     if col_num >= 3:
-        method, cand = ez_rel(table)
+        method = ez_rel(table)
         if method in ['+', '-1', '-2','*','/1','/2','max','min','avg']:
             table = ez_rel_fill(table, method=method)
             return True, table
