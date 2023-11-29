@@ -49,13 +49,14 @@ def ez_rel(example, cand=0):
             elif cands[cand] == "*" and (not multi_helper(example.iloc[j])):
                 pos = False
 
-            elif cands[cand] == "max" and (not math.isclose(example.iloc[j].max(), example[fill_col][j], abs_tol=0.001)):
+            elif cands[cand] == "max" and (not math.isclose(example.iloc[j, :fill_col].max(), example[fill_col][j], abs_tol=0.001)):
+                
                 pos = False 
 
-            elif cands[cand] == "min" and (not math.isclose(example.iloc[j].min(), example[fill_col][j], abs_tol=0.001)):
+            elif cands[cand] == "min" and (not math.isclose(example.iloc[j, :fill_col].min(), example[fill_col][j], abs_tol=0.001)):
                 pos = False
 
-            elif cands[cand] == "avg" and (not math.isclose(example.iloc[j].mean(), example[fill_col][j], abs_tol=0.001)):
+            elif cands[cand] == "avg" and (not math.isclose(example.iloc[j, :fill_col].mean(), example[fill_col][j], abs_tol=0.001)):
                 pos = False  
 
             elif cands[cand] == "-1" and (not math.isclose(example[0][j]-example[1][j], example[2][j], abs_tol=0.001)):
