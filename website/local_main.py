@@ -1,11 +1,11 @@
 import pandas as pd
 
-from unit_conversion import *
-from multiple_rows import *
-from weighted_col import *
-from empty_entries import *
-from tailing import * 
-from ez_numeric_2cols import *
+from .unit_conversion import *
+from .multiple_rows import *
+from .weighted_col import *
+from .empty_entries import *
+from .tailing import * 
+from .ez_numeric_2cols import *
 
 
 def load_csv(file_path):
