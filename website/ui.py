@@ -71,12 +71,19 @@ def main():
     # print(num)
     if num:
         # print("here")
-        formula, example = autofill(data)
+        formula, data = autofill(data)
     # print(example)
 
-    # method, cand = None, -1
-    # the numeric formula doesn't apply to the table
+    # Mixed column types: filter column is string, other column is numeric
     if not formula:
+        # print("here")
+        col, op = filter_sum_avg(data)
+        # print(col, op)
+        if op != "":
+            data = fill_filter_sum_avg(data, col, op)
+
+    # the numeric formula doesn't apply to the table
+    if op == "":
         # Convert all the numeric values into string
         data = data.astype(str)
 
@@ -90,13 +97,13 @@ def main():
             # if method in ['+', '-1', '-2','*','/1','/2','max','min','avg']:
             #     example = ez_rel_fill(example, method=method)
             if method in ['extract', 'concat', 'refactoring', 'complex']:
-                example = string_format_fill(data, method=method)
-            else:
-                example = autofill(data)
+                data = string_format_fill(data, method=method)
+            # else:
+            #     data = autofill(data)
     # print(example)
-    example = check(example, file_root+"_expected.csv")
+    data = check(data, file_root+"_expected.csv")
     # print(example)
-    example.to_csv(output_path, index=False, header = False)
+    data.to_csv(output_path, index=False, header = False)
     print("Done! The output is stored in", output_path)
     return 0
 
