@@ -1,4 +1,5 @@
 import math
+import numpy as np
 
 def bmi(table, w, h, w_unit, h_unit):
     row_num, col_num = table.shape
@@ -6,6 +7,7 @@ def bmi(table, w, h, w_unit, h_unit):
     if col_num != 3:
         return False
     
+    table.replace('nan', np.nan, inplace=True)
     examples = table[col_num-1].dropna()
     num = len(examples)
 
@@ -23,7 +25,7 @@ def bmi(table, w, h, w_unit, h_unit):
             height /= 100
         
         if not math.isclose(weight / (height ** 2), bmi , rel_tol = 0.01):
-            # print(height, weight)
+            # print(w, h, w_unit, h_unit,height, weight)
             return False
         
     return True

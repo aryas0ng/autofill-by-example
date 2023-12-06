@@ -88,17 +88,17 @@ def filter_sum_avg_helper(table, col):
     op = "sum"
     while (i < num):
         f = table[col][i]
-        elt = table[val][i]
+        elt = float(table[val][i])
         if (f == filter):
             sum += elt 
             count += 1
         else:
             avg = sum / count
             if (filter == table[col][0]):
-                if (math.isclose(avg, table[2][0], rel_tol = 0.01)):
+                if (math.isclose(avg, float(table[2][0]), rel_tol = 0.01)):
                     op = "avg"
             for j in range(count):
-                prev = table[2][i-j-1]
+                prev = float(table[2][i-j-1])
                 if op == "avg" and not (math.isclose(avg, prev, rel_tol = 0.01)):
                     trial = False
                     break
@@ -114,7 +114,7 @@ def filter_sum_avg_helper(table, col):
         i +=1 
 
     while (filter == table[col][i]):
-        sum += table[val][i]
+        sum += float(table[val][i])
         count += 1
         i += 1
 

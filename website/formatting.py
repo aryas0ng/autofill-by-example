@@ -3,6 +3,7 @@
 from string import punctuation
 import pandas as pd 
 import math
+
 def string_format(example, fill_col=1, cand=0):
     example = pd.DataFrame(example)
     # print(fill_col, example.shape)
@@ -12,7 +13,7 @@ def string_format(example, fill_col=1, cand=0):
     valid = example.iloc[:,fill_col].dropna()
     number = len(valid)
     start1 = str(example[0][0]).strip()
-    start2 = str(int(valid[0])).strip()
+    start2 = str(float(valid[0])).strip()
     # print(start1, start2)
     cands = ['extract', 'concat', 'refactoring', 'complex']
     pos = start1.find(start2)
@@ -68,7 +69,7 @@ def string_format(example, fill_col=1, cand=0):
     cand = 1 
     okay = True
     start1 = str(example[0][0]).strip()
-    start2 = str(int(valid[0])).strip()
+    start2 = str(float(valid[0])).strip()
     pos = start2.find(start1)
     if pos != -1:
         before = start2[:pos]
@@ -117,7 +118,10 @@ def string_format(example, fill_col=1, cand=0):
             elif char not in punctuation and ifchar:
                 origin_lst[-1] += char
         # print(goal_lst, origin_lst)
-        assert(len(origin_lst)+1 == len(goal_lst))
+        try:
+            assert(len(origin_lst)+1 == len(goal_lst))
+        except:
+            return None, -1
         fused = ""
         for j in range(len(goal_lst)-1):
             fused += goal_lst[j]

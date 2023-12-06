@@ -1,4 +1,5 @@
 import math 
+import numpy as np
 
 def bai(example, c_col, h_col, c_unit, h_unit):
     row_num, col_num = example.shape
@@ -6,6 +7,7 @@ def bai(example, c_col, h_col, c_unit, h_unit):
     if col_num != 3:
         return False
     
+    example.replace('nan', np.nan, inplace=True)
     examples = example[col_num-1].dropna()
     num = len(examples)
 

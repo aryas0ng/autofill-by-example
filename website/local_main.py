@@ -1,11 +1,11 @@
 import pandas as pd
 
-from .unit_conversion import *
-from .multiple_rows import *
-from .weighted_col import *
-from .empty_entries import *
-from .tailing import * 
-from .ez_numeric import *
+from unit_conversion import *
+from multiple_rows import *
+from weighted_col import *
+from empty_entries import *
+from tailing import * 
+from ez_numeric import *
 
 
 def load_csv(file_path):
@@ -67,13 +67,30 @@ def check(filled, expected, header = False):
     row_num, col_num = expected.shape
 
     if header:
+        header_names = pd.DataFrame([expected.iloc[0, :]])
         expected = expected.iloc[1:, :]
         filled = filled.iloc[1:, :]
+
+    left = pd.DataFrame(pd.to_numeric(expected.iloc[:,col_num-1]))
+    right = pd.DataFrame(filled.iloc[:, col_num-1])
+    # print(left)
+    # print(right)
+    # print("------")
+    # print(filled)
+
     
-    pd.testing.assert_frame_equal(pd.DataFrame(pd.to_numeric(expected.iloc[:,col_num-1])), pd.DataFrame(filled.iloc[:, col_num-1]), check_dtype = False, atol = 0.01)
+    pd.testing.assert_frame_equal(left, right, check_dtype = False, atol = 0.01)
 
     row_num, col_num = filled.shape
+    
+    # Round all entries in the filling column to two digits after decimal point
+    round = filled.iloc[:, col_num-1]
+    numeric_mask = pd.to_numeric(round, errors='coerce').notnull()
+    round[numeric_mask] = pd.to_numeric(round[numeric_mask]).round(2)
+    filled.iloc[:, col_num-1] = round
+
     new_filled = filled.copy()
+
     for r in range(1, row_num):
         # print(type(expected[col_num-1][r]))
         if isinstance(expected[col_num-1][r], int):
@@ -94,6 +111,9 @@ def check(filled, expected, header = False):
             except ValueError:
                 return filled
             new_filled = new_filled.astype(int)
+
+    if header:
+        new_filled = header_names.append(new_filled)
 
     return new_filled
 

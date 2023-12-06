@@ -1,4 +1,5 @@
 import math
+import numpy as np
 
 def bmr(example, gender_col, age_col, weight_col, height_col, w_unit, h_unit):
     row_num, col_num = example.shape
@@ -6,6 +7,7 @@ def bmr(example, gender_col, age_col, weight_col, height_col, w_unit, h_unit):
     if col_num != 5:
         return False
     
+    example.replace('nan', np.nan, inplace=True)
     examples = example[col_num-1].dropna()
     num = len(examples)
 
@@ -32,7 +34,7 @@ def bmr(example, gender_col, age_col, weight_col, height_col, w_unit, h_unit):
             calculate = 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age)
 
         if not math.isclose(calculate, bmr , rel_tol = 0.01):
-            # print(age,height,weight,gender)
+            # print(gender_col, age_col, weight_col, height_col, w_unit, h_unit, age,height,weight,gender, calculate, bmr)
             return False
         
     return True
