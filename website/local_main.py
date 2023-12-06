@@ -14,7 +14,7 @@ def load_csv(file_path):
 
 
 def cleaning(table):
-    # remove ending empty cols
+    # remove empty cols and rows
     table = tailing(table)
 
     # remove empty entries, especially for numeric table
@@ -62,10 +62,15 @@ def autofill(table):
     return False, table
     
 
-def check(filled, expected):
+def check(filled, expected, header = False):
     expected = load_csv(expected)
-    # print(expected)
-    pd.testing.assert_frame_equal(expected, filled, check_dtype = False, atol = 0.01)
+    row_num, col_num = expected.shape
+
+    if header:
+        expected = expected.iloc[1:, :]
+        filled = filled.iloc[1:, :]
+    
+    pd.testing.assert_frame_equal(pd.DataFrame(pd.to_numeric(expected.iloc[:,col_num-1])), pd.DataFrame(filled.iloc[:, col_num-1]), check_dtype = False, atol = 0.01)
 
     row_num, col_num = filled.shape
     new_filled = filled.copy()

@@ -5,8 +5,11 @@ def bai(example, c_col, h_col, c_unit, h_unit):
 
     if col_num != 3:
         return False
+    
+    examples = example[col_num-1].dropna()
+    num = len(examples)
 
-    for i in range(row_num):
+    for i in range(num):
         try:
             hip_circ = float(example.iloc[i,c_col])
             height = float(example.iloc[i,h_col])
@@ -26,7 +29,38 @@ def bai(example, c_col, h_col, c_unit, h_unit):
         calculate = ((hip_circ / height) ** 1.5) - 18
 
         if not math.isclose(calculate, bai , rel_tol = 0.01):
-            print(hip_circ, height, bai, calculate)
+            # print(hip_circ, height, bai, calculate)
             return False
         
     return True
+
+
+def fill_bai(table,  c_col, h_col, c_unit, h_unit):
+    row_num, col_num = table.shape
+
+    if col_num != 3:
+        return None
+    
+    filled = table.copy()
+
+    for i in range(row_num):
+        try:
+            hip_circ = float(table.iloc[i,c_col])
+            height = float(table.iloc[i,h_col])
+
+            if c_unit == "in":
+                hip_circ *= 2.54
+
+            if h_unit == "in":
+                height = height * 2.54 / 100
+            elif h_unit == "cm":
+                height /= 100
+            
+            calculate = ((hip_circ / height) ** 1.5) - 18
+            filled.iloc[i, 2] = calculate
+
+        except ValueError:
+            return None
+        
+    return filled
+
