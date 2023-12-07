@@ -6,220 +6,185 @@ import math
 
 def string_format(example, fill_col=1, cand=0):
     example = pd.DataFrame(example)
-    # print(fill_col, example.shape)
-    # print(example)
-    # print(example.iloc[:,fill_col])
-    # print(type(example))
-    valid = example.iloc[:,fill_col].dropna()
+    # user input examples
+    valid = []
+    for i in range(len(example[fill_col])):
+        if example[fill_col][i] != 'NaN' or example[fill_col][i] != "nan" or example[fill_col][i] != "0":
+            valid.append(example[fill_col][i])
+    # number of user input examples
     number = len(valid)
     start1 = str(example[0][0]).strip()
-    start2 = str(float(valid[0])).strip()
+    start2 = str(valid[0]).strip()
+    try:
+        start2 = str(int(float(start2)))
+    except:
+        pass
     # print(start1, start2)
     cands = ['extract', 'concat', 'refactoring', 'complex']
     pos = start1.find(start2)
-    cand = 0 
-    okay = True
+    # if start2 is in start1 --> extracting task
     if pos != -1:
-        context= [None, None]
-        # print("###################")
-        if pos==0:
-            context[0]='start'
-        else:
-            context[0]=start1[pos-1]
-        if pos+len(start2)==len(start1):
-            context[1]='end'
-        else:
-            context[1]=start1[pos+len(start2)]  
-        # print("context",context)
-
-        for i in range(1,number):
-            start1 = example[0][i]
-            start2 = valid[i]
-            if context[0] == 'start':
-                temp = start1[0:start1.find(context[1])]
-                if temp != start2:
-                    okay = False
+        check = True
+        context = [None, None]
+        if pos == 0:
+            context[0] = "B"
+        if pos+len(start2) == len(start1):
+            context[1] = "E"
+        if context[0] == None:
+            context[0] = start1[pos-1]
+        if context[1] == None:
+            context[1] = start1[pos+len(start2)]
+        for i in range(1,len(valid)):
+            try:
+                valid[i] = str(int(float(valid[i])))
+            except:
+                pass
+            if valid[i] == "nan":
+                break
+            if context[0] == "B" and context[1] == "E":
+                if str(valid[i]) != str(example[0][i]):
+                    check = False 
                     break
-            elif context[1] == 'end':
-                temp = start1[start1.rfind(context[0])+1:]
-                if temp != start2:
-                    okay = False
+            elif context[0] == "B":
+                rightidx = example[0][i].find(context[1])
+                if str(valid[i]) != str(example[0][i][:rightidx]):
+                    check = False
+                    break
+            elif context[1] == "E":
+                leftidx = example[0][i].rfind(context[0])
+                if str(valid[i]) != str(example[0][i][leftidx+1:]):
+                    print(str(valid[i]),str(example[0][i][leftidx+1:]) )
+                    check = False 
                     break
             else:
-                left = start1.find(context[0])
-                right = start1.rfind(context[1])
-                
-                temp = start1[left+1:right]
-                while temp != start2 and left < right:
-                    right = start1.rfind(context[1], 0, right)
-                    temp = start1[left+1:right]
-                if temp == start2:
+                leftidx = example[0][i].find(context[0])
+                rightidx = example[0][i].rfind(context[1])
+                if valid[i] != example[0][i][leftidx+1:rightidx]:
+                    check = False
                     break
-                right = start1.rfind(context[1])
-                temp = start1[left+1:right]
-                while temp != start2 and left < right:
-                    left = start1.find(context[0], left+1)
-                    temp = start1[left+1:right]
-                if temp == start2:
-                    break
-                okay = False
-                break
-        if okay:
-            return cands[cand], cand
-    cand = 1 
-    okay = True
-    start1 = str(example[0][0]).strip()
-    start2 = str(float(valid[0])).strip()
+        if check:
+            return "extract", context
+    # if start1 is in start2 --> concatenating task
     pos = start2.find(start1)
     if pos != -1:
-        before = start2[:pos]
-        after = start2[pos+len(start1):]
-        for i in range(1, number):
-            start1 = example[0][i]
-            start2 = valid[i]
-            if before+start1+after != start2 and start1 != start2:
-                okay = False 
-                break 
-        if okay:
-            return cands[cand], cand  
-    cand = 2
-    okay = True 
-    origin = start1.lower()
-    origin_lst = []
-    goal = start2.lower()
-    goal_lst = []
-    ifpunc = False
-    if goal[0] not in punctuation:
-        goal_lst.append("")
-        ifpunc = False
-    else:
-        goal_lst.append(goal[0])
-        ifpunc = True
-    for i in range(1,len(goal)):
-        if goal[i] in punctuation and ifpunc:
-            goal_lst[-1] += goal[i]
-        elif goal[i] in punctuation and not ifpunc:
-            goal_lst.append(goal[i])
-            ifpunc = True
-        elif goal[i] not in punctuation and ifpunc:
-            ifpunc = False
-    if not ifpunc: goal_lst.append("")
-    
-    for i in range(number):
-        origin_lst = []
-        origin = example[0][i]
-        ifchar = False
-        for char in origin:
-            if char in punctuation and ifchar:
-                ifchar = False
-            elif char not in punctuation and not ifchar:
-                origin_lst.append(char)
-                ifchar = True
-            elif char not in punctuation and ifchar:
-                origin_lst[-1] += char
-        # print(goal_lst, origin_lst)
-        try:
-            assert(len(origin_lst)+1 == len(goal_lst))
-        except:
-            return None, -1
-        fused = ""
-        for j in range(len(goal_lst)-1):
-            fused += goal_lst[j]
-            fused += origin_lst[j]
-            
-        fused += goal_lst[-1]
-        # print(valid[i], fused)
-        if fused != valid[i]:
-            okay = False
-            break 
-    if okay:
-        return cands[cand], cand
-        
-    return None,-1
-
-
-def string_format_fill(example, fill_col=1, method=""):
-    valid = example[fill_col].dropna()
-    number = len(valid)
-    if method == 'extract':
-      start1 = str(example[0][0]).strip()
-      start2 = str(valid[0]).strip()
-      pos = start1.find(start2)
-      context= [None, None]
-      if pos==0:
-          context[0]='start'
-      else:
-          context[0]=start1[pos-1]
-      if pos+len(start2)==len(start1):
-          context[1]='end'
-      else:
-          context[1]=start1[pos+len(start2)]  
-      print("context",context)
-      if context[0] == 'start':
-          for j in range(number, len(example[0])):
-              example[fill_col][j] = example[0][j][0:start1.find(context[1])]
-          
-      elif context[1] == 'end':
-          for j in range(number, len(example[0])):
-              example[fill_col][j] = example[0][j][start1.rfind(context[0])+1:]
-
-      else:
-          for j in range(number, len(example[0])):
-              left = start1.find(context[0])
-              right = start1.rfind(context[1])
-              example[fill_col][j] = example[0][j][left+1:right]
-            
-    elif method == 'concat':
-        start1 = str(example[0][0]).strip()
-        start2 = str(valid[0]).strip()
-        pos = start2.find(start1)
-        before = start2[:pos]
-        after = start2[pos+len(start1):]
-        for j in range(number, len(example[0])):
-            example[fill_col][j] = before + example[0][j] + after
-    
-    elif method == "refactoring":
-        start1 = str(example[0][0]).strip()
-        start2 = str(valid[0]).strip()
-        ifpunc = False
-        goal = start2.lower()
-        goal_lst = [] 
-        if goal[0] not in punctuation:
-            goal_lst.append("")
-            ifpunc = False
+        check = True
+        tagging = ""
+        if pos == 0:
+            leftidx = len(start1)
+            tagging = start2[leftidx:]
         else:
-            goal_lst.append(goal[0])
-
-        ifpunc = True
+            tagging = start2[:pos]
+        for i in range(1, len(valid)):
+            if pos == 0:
+                if valid[i] != example[0][i] and valid[i] != example[0][i] + tagging:
+                    check = False
+                    break
+            else:
+                if valid[i] != example[0][i] and valid[i] != tagging + example[0][i]:
+                    check = False
+                    break
+        tagpos = 0
+        if pos != 0:
+            tagpos = 1
+        if check:
+            return "concat", (tagging, tagpos)
         
-        for i in range(1,len(goal)):
-          if goal[i] in punctuation and ifpunc:
-              goal_lst[-1] += goal[i]
-          elif goal[i] in punctuation and not ifpunc:
-              goal_lst.append(goal[i])
-              ifpunc = True
-          elif goal[i] not in punctuation and ifpunc:
-              ifpunc = False
-        if not ifpunc: goal_lst.append("")
-
-        for j in range(number, len(example)):
-            origin = example[0][j].lower()
-            origin_lst = []
-            ifchar = False
-            for char in origin:
-                if char in punctuation and ifchar:
-                    ifchar = False
-                elif char not in punctuation and not ifchar:
-                    origin_lst.append(char)
-                    ifchar = True
-                elif char not in punctuation and ifchar:
-                    origin_lst[-1] += char
-            # print(goal_lst, origin_lst)
-            # assert(len(origin_lst)+1 == len(goal_lst))
-            fused = ""
-            for i in range(len(goal_lst)-1):
-                fused += goal_lst[i]
-                fused += origin_lst[i]
-            example[fill_col][j] = fused
+    check = True
+    start2seg = []
+    pointer = 0
+    flag = False #if num
+    if start2[0] not in punctuation:
+        start2seg.append("")
+    for i in range(len(start2)):
+        if start2[i] not in punctuation and flag:
+            flag = False
+            start2seg.append(start2[pointer:i])
+        elif start2[i] in punctuation and not flag:
+            flag = True
+            pointer = i
+    if start2[-1] not in punctuation:
+        start2seg.append("")
+    for i in range(1, len(valid)):
+        
+        pointer = 0 
+        flag = False # if punc
+        localseg = []
+        local = ""
+        for j in range(len(example[0][i])):
+            if example[0][i][j] in punctuation and not flag:
+                flag = True
+                localseg.append(example[0][i][pointer:j])
+            elif example[0][i][j] not in punctuation and flag:
+                pointer = j 
+                flag = False
+        if example[0][i][-1] not in punctuation:
+            localseg.append(example[0][i][pointer:])
+        localseg.append("")
+        print(start2seg, localseg)
+        for k in range(len(start2seg)):
+            local += start2seg[k]
+            local += localseg[k]
+        if local != valid[i]:
+            check = False
+            break
+    if check:
+        return "refactor", start2seg
     
+    return None, None
+
+def string_format_fill(example, fill_col=1, method="", extra=None):
+    example = pd.DataFrame(example)
+    # user input examples
+    valid = []
+    for i in range(len(example[fill_col])):
+        if example[fill_col][i] != 'NaN' or example[fill_col][i] != "nan" or example[fill_col][i] != "0":
+            valid.append(example[fill_col][i])
+    if method == "extract":
+        context = extra
+        for i in range(len(example[0])):
+            if context[0] == "B" and context[1] == "E":
+                example[1][i] = str(example[0][i])
+            elif context[0] == "B":
+                rightidx = example[0][i].find(context[1])
+                example[1][i] = str(example[0][i][:rightidx])
+            elif context[1] == "E":
+                leftidx = example[0][i].rfind(context[0])
+                example[1][i] = str(example[0][i][leftidx+1:])
+            else:
+                leftidx = example[0][i].find(context[0])
+                rightidx = example[0][i].rfind(context[1])
+                example[1][i] = example[0][i][leftidx+1:rightidx]
+
+    elif method == "concat":
+        tagging, tagpos = extra
+        for i in range(len(example[0])):
+            if tagging in example[0][i]:
+                example[1][i] = example[0][i]
+            elif tagpos == 0:
+                example[1][i] = example[0][i]+tagging
+            elif tagpos == 1:
+                example[1][i] = tagging+example[0][i]
+
+    elif method == "refactor":
+        punclist = extra
+        for i in range(len(example[0])):
+            pointer = 0 
+            flag = False # if punc
+            localseg = []
+            local = ""
+            for j in range(len(example[0][i])):
+                if example[0][i][j] in punctuation and not flag:
+                    flag = True
+                    localseg.append(example[0][i][pointer:j])
+                elif example[0][i][j] not in punctuation and flag:
+                    pointer = j 
+                    flag = False
+            if example[0][i][-1] not in punctuation:
+                localseg.append(example[0][i][pointer:])
+            localseg.append("")
+            for k in range(len(punclist)):
+                local += punclist[k]
+                local += localseg[k]
+            example[1][i] = local
+
     return example

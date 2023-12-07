@@ -3,6 +3,8 @@ import pandas as pd
 # import numpy as np
 from .formatting import string_format, string_format_fill
 from .local_main import *
+from .domain_knowledge import domain_knowledge_formula, fill_domain_knowledge
+from .cluster import sepncluster
 
 def load_csv(file_path):
     df = pd.read_csv(file_path, header = None)
@@ -23,6 +25,7 @@ def update_csv(file_path, df):
 #     return input_data
 
 def helper(file_path):
+
     file_root = file_path[:file_path.find(".csv")]
     output_path = file_root + "_output.csv"
     
@@ -31,15 +34,25 @@ def helper(file_path):
     data = cleaning(data)
     # print(data)
     
-    formula = False
+    # header
+    header = False
+    header_names = None
+    if data.iloc[0,0] in ["weight", "height", "age_sv"]:
+        header = True
+        header_names = data.iloc[0,:]
+        data = data.iloc[1:, :]
+        data = data.reset_index(drop=True)
+    
 
     num = True
-    # print(data.iloc[0])
+    formula = False
+    op = ""
+    method = None
+
+    # check if all the entries are numeric
     if not pd.api.types.is_numeric_dtype(data.iloc[0]):
-    # if not pd.to_numeric(data.iloc[0]).all():
         num = False
 
-    # print(num)
     if num:
         new_data = data
         for i in range(data.shape[0]):
@@ -52,33 +65,53 @@ def helper(file_path):
         if num:
             data = new_data
     
-    # print(num)
     if num:
-        # print("here")
-        formula, example = autofill(data)
-    # print(example)
+        formula, data = autofill(data)
+        op = 'numeric'
+        method = 'numeric'
 
-    # method, cand = None, -1
-    # the numeric formula doesn't apply to the table
+
+    # Mixed column types: filter column is string, other column is numeric
     if not formula:
+        col, op = filter_sum_avg(data)
+        if op != "":
+            data = fill_filter_sum_avg(data, col, op)
+            method = 'mixed'
+
+
+    # the numeric formula doesn't apply to the table
+    if op == "":
+        print("here at string processing")
         # Convert all the numeric values into string
         data = data.astype(str)
+        method, extra = string_format(data)
+        # print(method, extra)
+        # assert(False)        
+        if method in ['extract', 'concat', 'refactoring']:
+            data = string_format_fill(data, method=method, extra=extra)
 
-        # method, cand = ez_rel(data)
-        # if cand == -1:
-        method, cand = string_format(data)
-        if method == None:
-            print("It is too hard to infer potential relationship from the given columns.")
-            return 0 
+    # if method == None:
+    #     nums, units, clusters =sepncluster(data)
+    #     print(clusters)
+        
+    # Domain knowledge
+    if method == None:
+        # print("domain")
+        f, key, v = domain_knowledge_formula(data)
+        if f:
+            data = fill_domain_knowledge(data, key, v)
+            method = "domain knowledge"
         else:
-            # if method in ['+', '-1', '-2','*','/1','/2','max','min','avg']:
-            #     example = ez_rel_fill(example, method=method)
-            if method in ['extract', 'concat', 'refactoring', 'complex']:
-                example = string_format_fill(data, method=method)
-            else:
-                example = autofill(data)
+            print("It is too hard to infer potential relationship from the given columns.")
+            return 0
+
+    if header:
+        data = pd.DataFrame([header_names]).append(data)
+        data = data.reset_index(drop=True)
     # print(example)
     # example = check(example, file_root+"_expected.csv")
     # print(example)
     # example.to_csv(output_path, index=False, header = False)
-    return example
+    if method == None:
+        return None
+    return data

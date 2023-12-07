@@ -9,7 +9,7 @@ import numpy as np
 from formatting import string_format, string_format_fill
 from local_main import *
 from domain_knowledge import domain_knowledge_formula, fill_domain_knowledge
-
+from cluster import sepncluster
 def load_csv(file_path):
     df = pd.read_csv(file_path, header = None)
     return df
@@ -85,34 +85,35 @@ def main():
 
     # the numeric formula doesn't apply to the table
     if op == "":
+        print("here at string processing")
         # Convert all the numeric values into string
         data = data.astype(str)
+        method, extra = string_format(data)
+        # print(method, extra)
+        # assert(False)        
+        if method in ['extract', 'concat', 'refactoring']:
+            data = string_format_fill(data, method=method, extra=extra)
 
-        method, cand = string_format(data)
-        # if method == None:
-        #     print("It is too hard to infer potential relationship from the given columns.")
-        #     return 0 
-        # else:
-        if method in ['extract', 'concat', 'refactoring', 'complex']:
-            data = string_format_fill(data, method=method)
-
-
+    # if method == None:
+    #     nums, units, clusters =sepncluster(data)
+    #     print(clusters)
+        
     # Domain knowledge
     if method == None:
         # print("domain")
         f, key, v = domain_knowledge_formula(data)
         if f:
             data = fill_domain_knowledge(data, key, v)
+            method = "domain knowledge"
         else:
             print("It is too hard to infer potential relationship from the given columns.")
             return 0
-
 
     if header:
         data = pd.DataFrame([header_names]).append(data)
         data = data.reset_index(drop=True)
 
-    data = check(data, file_root+"_expected.csv", header)
+    # data = check(data, file_root+"_expected.csv", header)
 
     data.to_csv(output_path, index=False, header = False)
     print("Done! The output is stored in", output_path)

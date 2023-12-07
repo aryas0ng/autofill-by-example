@@ -1,10 +1,10 @@
 from itertools import permutations, product
 import pandas as pd
 
-from bmi import bmi, fill_bmi
-from bmr import bmr, fill_bmr
-from bai import bai, fill_bai
-from irr import irr, fill_irr
+from .bmi import bmi, fill_bmi
+from .bmr import bmr, fill_bmr
+from .bai import bai, fill_bai
+from .irr import irr, fill_irr
 
 def wh_perm(num):
     cols = list(permutations(range(0, num)))

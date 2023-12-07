@@ -22,11 +22,15 @@ def home():
     if userfile and allowed_file(userfile.filename):
       filename = secure_filename(userfile.filename)
       new_filename = f'{filename.split(".")[0]}_{"filled"}.csv'
-      print
       save_location = os.path.join('website/input', new_filename)
       output_location = os.path.join('website/output', new_filename)
       userfile.save(save_location)
       output = helper(save_location)
+      # flash('No valid function found for you autofill task!', category='error')
+      # return render_template("home.html", user=current_user)
+      if output == None:
+        flash('No valid function found for you autofill task!', category='error')
+        return render_template("home.html", user=current_user)
       output.to_csv(output_location, index=False, header = False)
       file = File.query.filter_by(file_path=new_filename).first()
       if not file:
